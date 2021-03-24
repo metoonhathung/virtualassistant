@@ -7,35 +7,35 @@ body {
   margin: 0;
 }
 
-button {
+#speakButton {
   display: block;
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   border: 0;
   border-radius: 50%;
-  padding: 0.7em 1em;
-  margin: 4em auto 3em;
+  padding: 0.25em 1em;
+  margin: 1.5em auto;
   text-align: center;
   color: #fff;
-  background: linear-gradient(180deg, #39c2c9 0%, #3fc8c9 80%, #3fc8c9 100%);
-  box-shadow: 2px 5px 30px rgba(63, 200, 201, 0.4);
+  background: deepskyblue;
+  box-shadow: 2px 5px 30px skyblue;
 
   will-change: transform, filter;
   transition: all 0.3s ease-out;
 }
-button .fa {
-  font-size: 130px;
-  line-height: 200px;
+#speakButton .fa {
+  font-size: 80px;
+  line-height: 150px;
   margin: 0;
-  text-shadow: 1px 2px 2px #2a8b90;
+  text-shadow: 1px 2px 2px lightgrey;
 }
-button:hover {
+#speakButton:hover {
   transform: scale(0.92);
 }
-button:active {
+#speakButton:active {
   filter: brightness(0.8);
 }
-button:focus {
+#speakButton:focus {
   outline: 0;
 }
 
@@ -50,4 +50,8 @@ button:focus {
 }
 .fa-github::before {
   content: "\f09b";
+}
+
+.disabled {
+  display: none !important;
 }

@@ -13,6 +13,11 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
     />
+    <link
+      rel="icon"
+      href="https://img.icons8.com/fluent/2x/artificial-intelligence.png"
+      type="image/x-icon"
+    />
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
@@ -23,10 +28,107 @@
   </head>
 
   <body>
-    <button id="speak"><i class="fa fa-microphone"></i></button>
-    <div>
-      <h1 id="you" class="display-4">You</h1>
-      <h1 id="bot" class="display-4">Bot</h1>
+    <div class="container">
+      <h1 class="display-4 text-center">Virtual Assistant</h1>
+      <button id="speakButton" class="disabled">
+        <i class="fa fa-microphone"></i>
+      </button>
+    </div>
+    <div class="container input-group">
+      <input
+        type="text"
+        id="textInput"
+        class="form-control"
+        placeholder="Type command"
+      />
+      <div class="input-group-append">
+        <button id="executeButton" class="btn btn-primary">Execute</button>
+      </div>
+    </div>
+    <div class="container">
+      <h1 class="text-left">
+        <span id="youIntent" class="text-success"></span>
+        <span id="youQuery" class="text-primary"></span>
+      </h1>
+      <h1 id="botAnswer" class="text-right text-info"></h1>
+    </div>
+    <div
+      class="container embed-responsive embed-responsive-16by9 disabled"
+      id="embeddedDiv"
+    ></div>
+    <div class="container">
+      <table class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Command</th>
+            <th scope="col">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>answer [QUESTION]</td>
+            <td>Wolfram Alpha: Answer summary</td>
+          </tr>
+          <tr>
+            <td>article [KEYWORDS]</td>
+            <td>Wikipedia: One sentence explanation</td>
+          </tr>
+          <tr>
+            <td>weather [LOCATION]</td>
+            <td>OpenWeatherMap: Description and temperature</td>
+          </tr>
+          <tr>
+            <td>dictionary [WORD]</td>
+            <td>Oxford Dictionary: Word definition</td>
+          </tr>
+          <tr>
+            <td>video [KEYWORDS]</td>
+            <td>YouTube: Embedded video</td>
+          </tr>
+          <tr>
+            <td>map [LOCATION]</td>
+            <td>Google Maps: Embedded map</td>
+          </tr>
+          <tr>
+            <td>
+              translate [<a
+                href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes"
+                target="_blank"
+                >TARGET_2LETTER</a
+              >] [TEXT]
+            </td>
+            <td>Google Translate: Translate text</td>
+          </tr>
+          <tr>
+            <td>search [INPUT]</td>
+            <td>New tab Google search</td>
+          </tr>
+          <tr>
+            <td>joke</td>
+            <td>Joke: Random</td>
+          </tr>
+          <tr>
+            <td>location</td>
+            <td>MapQuest: Current location</td>
+          </tr>
+          <tr>
+            <td>time</td>
+            <td>Current time</td>
+          </tr>
+          <tr>
+            <td>date</td>
+            <td>Current date</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="container text-center bg-primary">
+      <a
+        target="_blank"
+        href="https://github.com/metoonhathung/virtualassistant"
+      >
+        <p class="lead text-white">Source Code on GitHub</p>
+      </a>
     </div>
   </body>
 </html>
