@@ -8,6 +8,7 @@ const embeddedDiv = document.querySelector("#embeddedDiv");
 let supported = false;
 let start = false;
 let recognition, synth, utter;
+let video, interval;
 
 if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
   supported = true;
@@ -55,13 +56,13 @@ if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
   };
 }
 
-textInput.addEventListener("keyup", (event) => {
+textInput.onkeyup = (e) => {
   clear();
-  if (event.keyCode === 13) {
-    event.preventDefault();
+  if (e.keyCode === 13) {
+    e.preventDefault();
     executeButton.click();
   }
-});
+};
 
 executeButton.onclick = () => {
   clear();
@@ -93,7 +94,7 @@ function process(data) {
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
       return "Please wait.";
@@ -123,7 +124,7 @@ function process(data) {
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
       return;
@@ -147,7 +148,7 @@ function process(data) {
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
       return;
@@ -170,13 +171,14 @@ function process(data) {
           let video = response.items[0];
           let videoId = video.id.videoId;
           embeddedDiv.classList.remove("disabled");
-          embeddedDiv.innerHTML = `<iframe class="embed-responsive-item" loading="lazy" allowfullscreen 
+          embeddedDiv.classList.add("responsive-iframe");
+          embeddedDiv.innerHTML = `<iframe frameborder="0" loading="lazy" allowfullscreen 
           src="https://www.youtube.com/embed/${videoId}?rel=0&hd=1" style="border:0"></iframe>`;
           let output = video.snippet.title;
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
       return;
@@ -185,7 +187,8 @@ function process(data) {
   if (intent === "map") {
     if (query) {
       embeddedDiv.classList.remove("disabled");
-      embeddedDiv.innerHTML = `<iframe class="embed-responsive-item" loading="lazy" allowfullscreen 
+      embeddedDiv.classList.add("responsive-iframe");
+      embeddedDiv.innerHTML = `<iframe frameborder="0" loading="lazy" allowfullscreen 
       src="https://www.google.com/maps/embed/v1/place?key=${googleKey}&q=${query}"></iframe>`;
       return `Showing ${query}`;
     }
@@ -207,7 +210,7 @@ function process(data) {
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
       return;
@@ -230,7 +233,7 @@ function process(data) {
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
       return;
@@ -246,14 +249,13 @@ function process(data) {
         reply(output);
       },
       error: (error) => {
-        reply("Request failed.");
+        reply(`${error.status} ${error.statusText}`);
       },
     });
     return;
   }
   if (intent === "location") {
-    if (!navigator.geolocation) return "Geolocation not supported by browser.";
-    navigator.geolocation.getCurrentPosition((position) => {
+    let showPosition = (position) => {
       $.ajax({
         type: "GET",
         url: `https://open.mapquestapi.com/geocoding/v1/reverse`,
@@ -268,10 +270,77 @@ function process(data) {
           reply(output);
         },
         error: (error) => {
-          reply("Request failed.");
+          reply(`${error.status} ${error.statusText}`);
         },
       });
-    });
+    };
+    navigator.geolocation.getCurrentPosition(showPosition);
+    return "Please wait.";
+  }
+  if (intent === "webcam") {
+    embeddedDiv.classList.remove("disabled");
+    embeddedDiv.innerHTML = `<video id="video" autoplay muted webkit-playsinline playsinline></video>`;
+    video = document.querySelector("#video");
+    let startVideo = () => {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+        })
+        .then((stream) => {
+          let settings = stream.getTracks()[0].getSettings();
+          video.width = settings.width;
+          video.height = settings.height;
+          video.srcObject = stream;
+          video.onloadedmetadata = function (e) {
+            video.play();
+          };
+        })
+        .catch((err) => reply(`${err.name} ${err.message}`));
+    };
+
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri("./models"),
+      faceapi.nets.faceLandmark68TinyNet.loadFromUri("./models"),
+      faceapi.nets.faceRecognitionNet.loadFromUri("./models"),
+      faceapi.nets.faceExpressionNet.loadFromUri("./models"),
+      faceapi.nets.ageGenderNet.loadFromUri("./models"),
+    ]).then(startVideo);
+
+    video.onplaying = () => {
+      const canvas = faceapi.createCanvasFromMedia(video);
+      embeddedDiv.append(canvas);
+      const displaySize = {
+        width: video.clientWidth,
+        height: video.clientHeight,
+      };
+      faceapi.matchDimensions(canvas, displaySize);
+      interval = setInterval(async () => {
+        const detections = await faceapi
+          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks(true)
+          .withFaceExpressions()
+          .withAgeAndGender();
+        const resizedDetections = faceapi.resizeResults(
+          detections,
+          displaySize
+        );
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        faceapi.draw.drawDetections(canvas, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+        faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+        if (resizedDetections[0]) {
+          const age = resizedDetections[0].age;
+          const gender = resizedDetections[0].gender;
+          new faceapi.draw.DrawTextField(
+            [`${faceapi.utils.round(age, 0)} years, ${gender}`],
+            {
+              x: resizedDetections[0].detection.box.topLeft.x,
+              y: resizedDetections[0].detection.box.topLeft.y,
+            }
+          ).draw(canvas);
+        }
+      }, 100);
+    };
     return "Please wait.";
   }
   if (intent === "time") return new Date().toLocaleTimeString();
@@ -310,4 +379,19 @@ function clear() {
   botAnswer.innerText = "";
   embeddedDiv.innerHTML = "";
   embeddedDiv.classList.add("disabled");
+  embeddedDiv.classList.remove("responsive-iframe");
+  stopStream();
+}
+
+function stopStream() {
+  if (!video) return;
+  const stream = video.srcObject;
+  const tracks = stream.getTracks();
+  tracks.forEach(function (track) {
+    track.stop();
+  });
+  video.srcObject = null;
+  clearInterval(interval);
+  video = null;
+  interval = null;
 }

@@ -19,11 +19,13 @@
       type="image/x-icon"
     />
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+
+    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script defer src="face-api.min.js"></script>
+    <script defer src="script.js"></script>
     <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
       defer
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
     ></script>
   </head>
 
@@ -53,7 +55,7 @@
       <h1 id="botAnswer" class="text-right text-info"></h1>
     </div>
     <div
-      class="container embed-responsive embed-responsive-16by9 disabled"
+      class="container d-flex justify-content-center align-items-center disabled"
       id="embeddedDiv"
     ></div>
     <div class="container">
@@ -104,8 +106,8 @@
             <td>New tab Google search</td>
           </tr>
           <tr>
-            <td>joke</td>
-            <td>Joke: Random</td>
+            <td>webcam</td>
+            <td>Face: Analyze age, gender, expressions</td>
           </tr>
           <tr>
             <td>location</td>
@@ -118,6 +120,10 @@
           <tr>
             <td>date</td>
             <td>Current date</td>
+          </tr>
+          <tr>
+            <td>joke</td>
+            <td>Joke: Random</td>
           </tr>
         </tbody>
       </table>
